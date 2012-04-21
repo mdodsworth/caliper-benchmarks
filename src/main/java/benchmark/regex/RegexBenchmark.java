@@ -8,7 +8,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import java.util.regex.Pattern;
 
 /**
- * FIXME: mdodsworth - Document me!
+ * Benchmarks for a variety of Regular Expression implementations
  *
  * @author mdodsworth
  */

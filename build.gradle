@@ -18,3 +18,7 @@ dependencies {
 }
 
 mainClassName = 'benchmark.regex.RegexBenchmark'
+
+run {
+    args '-Jsettings=-server,-XX:BiasedLockingStartupDelay=0'
+}

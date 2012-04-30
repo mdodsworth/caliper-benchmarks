@@ -3,9 +3,10 @@ package benchmark.regex;
 import com.google.caliper.Param;
 import com.google.caliper.Runner;
 import com.google.caliper.SimpleBenchmark;
-import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.regex.Pattern;
+
+import static org.apache.commons.lang3.RandomStringUtils.*;
 
 /**
  * Benchmarks for a variety of Regular Expression implementations
@@ -14,7 +15,7 @@ import java.util.regex.Pattern;
  */
 public class RegexBenchmark extends SimpleBenchmark {
 
-    @Param({"100", "1000"}) private int numberOfTokens;
+    @Param({"1000"}) private int numberOfTokens;
     @Param private Expression expression;
     @Param private DataSource dataSource;
     @Param private RegexImpl regexImpl;
@@ -22,17 +23,11 @@ public class RegexBenchmark extends SimpleBenchmark {
     private CharSequence[] tokens;
 
     private static enum Expression {
-        COMPLEX_EMAIL_ADDRESS("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@" +
-                "(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+" +
-                "(?:[A-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)$"),
-        COMPLETE_EMAIL_ADDRESS("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"" +
-                "(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\" +
-                "[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)" +
-                "+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.)" +
-                "{3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:" +
-                "(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\" +
-                "[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])$");
-
+        PHONE_NUMBER("^((\\+\\d{1,3}(-|\\.)?\\(?\\d\\)?(-|\\.)?\\d{1,5})|(\\(?\\d{2,6}\\)?))(-|\\.)?(\\d{3,4})" +
+                "(-|\\.)?(\\d{4})((x|ext)\\d{1,5}){0,1}$"),
+        NEW_PHONE_NUMBER("^(?>\\+?\\(?\\d{1,3}+\\)?[-.]?)?(?:\\(?\\d{3,6}+\\)?[-.]?)?\\d{3,4}[-.]?\\d{4}(?>(x|ext)\\d{1,5}+)?$"),
+        /*best..but not above number*/LOOK_AHEAD("^(?=\\+?[\\d-.\\(\\)]{7,24}+(?>(x|ext)\\d{1,5}+)?$)(?>(?>\\+?\\d{1,3}?|\\(\\d{1,3}+\\))[-.]?)?(?:\\(\\d{3,6}+\\)|\\d{3,6})?[-.]?\\d{3,4}[-.]?\\d{4}(?>(x|ext)\\d{1,5}+)?$"),
+        NEW_LOOK_AHEAD("^(?=\\+?[\\d-.\\(\\)]{7,24}+(?>(x|ext)\\d{1,5}+)?$)(?>\\+?\\(?\\d{1,3}+\\)?[-.]?)?(?:\\(?\\d{3,6}+\\)?[-.]?)?\\d{3,4}[-.]?\\d{4}(?>(x|ext)\\d{1,5}+)?$");
 
         private final String expression;
 
@@ -49,13 +44,25 @@ public class RegexBenchmark extends SimpleBenchmark {
         RANDOM_ALPHABETIC {
             @Override
             public CharSequence nextToken() {
-                return RandomStringUtils.randomAlphabetic(10);
+                return randomAlphabetic(20);
             }
         },
         RANDOM_ALPHANUMERIC {
             @Override
             public CharSequence nextToken() {
-                return RandomStringUtils.randomAlphanumeric(10);
+                return randomAlphanumeric(20);
+            }
+        },
+        PHONE_NUMBER {
+            @Override
+            public CharSequence nextToken() {
+                return "1-" + randomNumeric(3) + '-' + randomNumeric(3) + "-" + randomNumeric(4) + "x" + randomNumeric(5);
+            }
+        },
+        NUMBER {
+            @Override
+            public CharSequence nextToken() {
+                return randomNumeric(20);
             }
         };
 
